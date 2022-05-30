@@ -8,7 +8,7 @@ const PORT = 3000;
 const app = express();
 app.set("view engine", "ejs");
 app.set('views', './src/views');
-const DB_URL = 'mongodb://codegym:123456@127.0.0.1:27017/codegym';
+const DB_URL = 'mongodb://codegym:123456@127.0.0.1:27017/dbTest';
 mongoose.connect(DB_URL)
 .then(() => console.log('DB Connected!'))
 .catch(error => console.log('DB connection error:', error.message));

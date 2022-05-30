@@ -28,6 +28,16 @@
 </head>
 
 <body>
+  <form action="/book/list" method="GET">
+    <label>Keyword:</label>
+    <input type="text" id="keyword" name="keyword">
+  </br>
+    <label>Author:</label>
+    <input type="text" id="author" name="author">
+  </br>
+    <div class="form-group">
+      <button type="submit" class="btn btn-primary" >Search</button></div>
+  </form>
   <h2>List Books</h2>
   <% for(const book of books) { %>
     <h3>
@@ -37,7 +47,10 @@
       Description: <%= book.description %>
     </p>
     <p>
-      Author: <%= book.author %>
+      Author: <%= book.author.name %>
+    </p>
+    <p>
+      Keyword: <%= book.keywords[0].keyword %>
     </p>
     <button onclick="update('<%= book.id %>')">Update</button>
     <button onclick="deleteBook('<%= book.id %>')">Delete</button>

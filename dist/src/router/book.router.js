@@ -7,15 +7,25 @@ const express_1 = require("express");
 const bookRoutes = (0, express_1.Router)();
 const book_model_1 = require("../schemas/book.model");
 const multer_1 = __importDefault(require("multer"));
+const author_model_1 = require("../schemas/author.model");
 const upload = (0, multer_1.default)();
 bookRoutes.get('/create', (req, res) => {
     res.render("createBook");
 });
 bookRoutes.post('/create', upload.none(), async (req, res) => {
     try {
-        console.log(req.body, 'req.body');
-        const bookNew = new book_model_1.Book(req.body);
-        const book = await bookNew.save();
+        const authorNew = new author_model_1.Author({
+            name: req.body.author
+        });
+        const bookNew = new book_model_1.Book({
+            title: req.body.title,
+            description: req.body.description,
+            author: authorNew,
+        });
+        bookNew.keywords.push({ keyword: req.body.keyword });
+        const p1 = authorNew.save();
+        const p2 = bookNew.save();
+        let [author, book] = await Promise.all([p1, p2]);
         if (book) {
             res.render("success");
         }
@@ -48,7 +58,23 @@ bookRoutes.post('/update', upload.none(), async (req, res) => {
 });
 bookRoutes.get('/list', async (req, res) => {
     try {
-        const books = await book_model_1.Book.find();
+        let query = {};
+        if (req.query.keyword && req.query.keyword !== "") {
+            let keywordFind = req.query.keyword || "";
+            query = {
+                "keywords.keyword": {
+                    $regex: keywordFind
+                }
+            };
+        }
+        if (req.query.author && req.query.author !== "") {
+            let authordFind = req.query.author || "";
+            let author = await author_model_1.Author.findOne({ name: { $regex: authordFind } });
+            query = Object.assign(Object.assign({}, query), { author: author });
+        }
+        const books = await book_model_1.Book.find(query).populate({
+            path: "author", select: "name"
+        });
         res.render("listBook", { books: books });
     }
     catch (_a) {

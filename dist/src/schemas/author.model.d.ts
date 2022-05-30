@@ -7,11 +7,8 @@
 /// <reference types="mongoose/types/pipelinestage" />
 /// <reference types="mongoose/types/schemaoptions" />
 /// <reference types="mongoose" />
-interface IBook {
-    title: string;
-    description: string;
-    author: string;
-    keywords: object[];
+interface IAuthor {
+    name: string;
 }
-declare const Book: import("mongoose").Model<IBook, {}, {}, {}>;
-export { Book };
+declare const Author: import("mongoose").Model<IAuthor, {}, {}, {}>;
+export { Author };

@@ -2,6 +2,7 @@ import { Router } from 'express';
 const bookRoutes = Router();
 import { Book } from "../schemas/book.model";
 import multer from 'multer';
+import { Author } from '../schemas/author.model';
 const upload = multer();
 
 bookRoutes.get('/create', (req, res) => {
@@ -10,9 +11,18 @@ bookRoutes.get('/create', (req, res) => {
 
 bookRoutes.post('/create', upload.none(), async (req, res) => {
   try {
-    console.log(req.body, 'req.body')
-    const bookNew = new Book(req.body);
-    const book = await bookNew.save();
+    const authorNew = new Author({
+      name: req.body.author
+    })
+    const bookNew = new Book({
+      title: req.body.title,
+      description: req.body.description,
+      author: authorNew,
+    });
+    bookNew.keywords.push({ keyword: req.body.keyword });
+    const p1 = authorNew.save();
+    const p2 = bookNew.save();
+    let [author, book] = await Promise.all([p1, p2]);
     if (book) {
       res.render("success");
     } else {
@@ -42,7 +52,26 @@ bookRoutes.post('/update', upload.none(), async (req, res) => {
 });
 bookRoutes.get('/list', async (req, res) => {
   try {
-    const books = await Book.find();
+    let query = {};
+    if (req.query.keyword && req.query.keyword !== "") {
+      let keywordFind = req.query.keyword || "";
+      query = {
+        "keywords.keyword": {
+          $regex: keywordFind
+        }
+      }
+    }
+    if (req.query.author && req.query.author !== "") {
+      let authordFind = req.query.author || "";
+      let author = await Author.findOne({name: { $regex: authordFind}})
+      query = {
+        ...query,
+        author: author
+      }
+    }
+    const books = await Book.find(query).populate({
+      path: "author", select: "name"
+    });
     res.render("listBook", { books: books });
   } catch {
     res.render("error");
