@@ -6,12 +6,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const body_parser_1 = __importDefault(require("body-parser"));
 const mongoose_1 = __importDefault(require("mongoose"));
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
 const book_router_1 = __importDefault(require("./src/router/book.router"));
 const PORT = 3000;
 const app = (0, express_1.default)();
 app.set("view engine", "ejs");
 app.set('views', './src/views');
-const DB_URL = 'mongodb://codegym:123456@127.0.0.1:27017/dbTest';
+const DB_URL = `mongodb://${process.env.DATABASE_USERNAME}:${process.env.DATABASE_PASSWORD}@${process.env.DATABASE_HOST}:${process.env.DATABASE_PORT}/${process.env.DATABASE_NAME}`;
+console.log(DB_URL, "DB_URL");
 mongoose_1.default.connect(DB_URL)
     .then(() => console.log('DB Connected!'))
     .catch(error => console.log('DB connection error:', error.message));
